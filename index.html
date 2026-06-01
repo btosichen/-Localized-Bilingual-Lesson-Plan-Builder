@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>本土雙語教育模式教案設計填寫平台 | Localized Bilingual Lesson Plan Builder</title>
+    <title>本土雙語教育模式教案設計平台 | Localized Bilingual Lesson Plan Builder</title>
     <style>
         :root {
             --primary: #3b82f6; /* Blue */
@@ -268,6 +268,7 @@
             align-items: center;
             gap: 8px;
             transition: opacity 0.2s;
+            text-decoration: none; /* 確保超連結按鈕沒有底線 */
         }
         .btn:hover { opacity: 0.9; }
         .btn-primary { background-color: var(--primary); color: white; }
@@ -470,7 +471,10 @@
 <body>
 
     <header>
-        <h1>🌏 本土雙語教育模式教案設計填寫平台 <span style="font-size: 1rem; color: var(--text-light); font-weight: normal;">Localized Bilingual Lesson Plan Builder</span></h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <h1>🌏 本土雙語教育模式教案設計平台 <span style="font-size: 1rem; color: var(--text-light); font-weight: normal;">Localized Bilingual Lesson Plan Builder</span></h1>
+            <a href="https://docs.google.com/spreadsheets/d/1I_MmbFRLGBeBAyNOJmoBJ5Y2iRujtgjFNiNG-5C_bAQ/edit?usp=sharing" target="_blank" class="btn" style="background-color: #fef08a; color: #854d0e; border: 2px solid #fde047; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">👀 去看大家的教案紀錄 📝✨</a>
+        </div>
         <div class="progress-container">
             <div class="progress-bar-bg">
                 <div class="progress-bar" id="progressBar"></div>
@@ -894,9 +898,11 @@
                         </div>
                         
                         <div class="action-buttons">
+                            <a href="https://docs.google.com/spreadsheets/d/1I_MmbFRLGBeBAyNOJmoBJ5Y2iRujtgjFNiNG-5C_bAQ/edit?usp=sharing" target="_blank" class="btn" style="background-color: #fef08a; color: #854d0e; border: 2px solid #fde047;">👀 觀看紀錄表 📊</a>
                             <button type="button" class="btn btn-danger" onclick="clearForm()">🗑️ 清除重填</button>
                             <button type="button" class="btn btn-claude" onclick="generateClaudePrompt()">🤖 產生 Claude 教案生成提示詞</button>
                             <button type="button" class="btn btn-success" onclick="copyToClipboard()">📋 一鍵複製教案至 Word</button>
+                            <button type="button" id="btnSubmit" class="btn btn-primary" onclick="submitToGoogleSheets()">📤 送出至 Google 試算表</button>
                         </div>
                     </div>
                 </div>
@@ -1262,6 +1268,103 @@ ${draft}
                 updateProgress();
                 generatePreview();
                 alert("已清空表單！");
+            }
+        }
+
+        // 送出至 Google 試算表
+        async function submitToGoogleSheets() {
+            // ⚠️ 部署完成後，請將下方網址替換為您的 Web App URL
+            const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyXPqW1EJRVbH9Du4esubFdeHixW8BCpjKOfQc6ni5Gs0uJqdThLY9KM-jl8xqBwX-_Uw/exec';
+
+            if (WEB_APP_URL === '請替換成您的_Web_App_URL') {
+                alert('⚠️ 請先在程式碼中填寫您的 Google Apps Script Web App URL！');
+                return;
+            }
+
+            const val = (id) => document.getElementById(id) ? document.getElementById(id).value.trim() : '';
+            
+            // 整理教學流程 (TP) 資料
+            let tp_data = "";
+            document.querySelectorAll('.procedure-block').forEach((block, index) => {
+                const q = (sel) => block.querySelector(sel).value.trim() || '(未填)';
+                tp_data += `[第 ${index + 1} 節] ${q('.proc-name')} (${q('.proc-time')}m)\n準備:${q('.proc-prep')}\n發展:${q('.proc-dev')}\n總結:${q('.proc-sum')}\n語言:${q('.proc-t-lang')}/${q('.proc-s-lang')}\n對應:${q('.proc-mapping')}\n\n`;
+            });
+
+            // 整理評量規準 (RU) 資料
+            let ru_data = "";
+            document.querySelectorAll('#rubricBody tr').forEach(row => {
+                const aspect = row.querySelector('.ru-aspect').value.trim();
+                const exc = row.querySelector('.ru-exc').value.trim();
+                const good = row.querySelector('.ru-good').value.trim();
+                const need = row.querySelector('.ru-need').value.trim();
+                if(aspect) {
+                    ru_data += `[${aspect}] 優:${exc}, 良:${good}, 待:${need}\n`;
+                }
+            });
+
+            // 處理議題融入
+            let iiStr = val('f_ii');
+            if(val('f_ii_desc') && val('f_ii_desc') !== '(未填寫)') iiStr += ` - ${val('f_ii_desc')}`;
+
+            const payload = {
+                department: val('f_department'),
+                teacherName: val('f_teacher_name'),
+                school: val('f_school'),
+                course: val('f_course'),
+                unit: val('f_unit'),
+                su: val('f_su'),
+                gr: val('f_gr'),
+                material: val('f_material'),
+                sessions: val('f_sessions'),
+                rid: val('f_rid'),
+                gg: val('f_gg'),
+                dg: val('f_dg'),
+                sbc: val('f_sbc'),
+                lp: val('f_lp'),
+                lc: val('f_lc'),
+                lo: val('f_lo'),
+                srs: val('f_srs'),
+                sre: val('f_sre'),
+                tuet: val('f_tuet'),
+                tues: val('f_tues'),
+                tm: val('f_tm'),
+                ts: val('f_ts'),
+                tra: val('f_tra'),
+                ii: iiStr,
+                tp_data: tp_data.trim(),
+                am: val('f_am'),
+                ru: ru_data.trim()
+            };
+
+            const btn = document.getElementById('btnSubmit');
+            const originalText = btn.innerText;
+            btn.innerText = '⏳ 送出中...';
+            btn.disabled = true;
+
+            try {
+                // 使用 text/plain 避免 CORS preflight (OPTIONS) 問題，但內容依然是 JSON 格式的字串
+                // 這是前端與 Google Apps Script 溝通時最穩定的做法
+                const response = await fetch(WEB_APP_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain;charset=utf-8',
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    alert('✅ 已成功送出教案紀錄至 Google 試算表！');
+                } else {
+                    alert('❌ 送出失敗：' + (result.message || '未知錯誤'));
+                }
+            } catch (error) {
+                console.error(error);
+                alert('❌ 網路連線錯誤，或 Web App URL 設定不正確。');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
             }
         }
     </script>
