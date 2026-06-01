@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>本土化雙語教案設計互動填寫平台 | Localized Bilingual Lesson Plan Builder</title>
+    <style>
+        :root {
+            --primary: #3b82f6; /* Blue */
+            --success: #10b981; /* Green */
+            --warning: #f59e0b; /* Orange */
+            --accent: #8b5cf6;  /* Purple */
+            --bg-color: #f0f8ff; /* AliceBlue */
+            --card-bg: #ffffff;
+            --text-main: #334155;
+            --text-light: #64748b;
+            --border-color: #e2e8f0;
+            --hint-bg: #fffbeb;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Microsoft JhengHei';
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-bar-bg {
+            background-color: #e2e8f0;
+            border-radius: 999px;
+            height: 12px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .main-container {
+            max-width: 1300px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+        }
+
+        /* 導覽列 */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.25rem;
+            background-color: var(--card-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--text-light);
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .tab-btn.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* 內容區 */
+        .content-area {
+            flex: 1;
+            min-width: 0; 
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1.5rem;
+            border-top: 5px solid var(--primary);
+        }
+
+        .card-green { border-top-color: var(--success); }
+        .card-orange { border-top-color: var(--warning); }
+        .card-purple { border-top-color: var(--accent); }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 表單元素 */
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        input[type="text"], 
+        input[type="number"],
+        select, 
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+            background-color: #f8fafc;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 升級版提示框 */
+        .hint-text {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            margin-top: 8px;
+            background-color: var(--hint-bg);
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--warning);
+            line-height: 1.6;
+        }
+        .hint-text strong {
+            color: #92400e; /* Darker orange for emphasis */
+            margin-right: 4px;
+        }
+        .hint-text ul {
+            margin-top: 4px;
+            margin-bottom: 4px;
+            padding-left: 1.5rem;
+        }
+
+        /* 標籤徽章 (Badges) */
+        .badge {
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .badge-primary { background-color: #dbeafe; color: #1e40af; }
+        .badge-success { background-color: #d1fae5; color: #065f46; }
+        .badge-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-accent { background-color: #ede9fe; color: #5b21b6; }
+
+        /* 插入範例按鈕 */
+        .btn-example {
+            font-size: 0.75rem;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            border: 1px solid #c7d2fe;
+            padding: 3px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-left: auto; /* Push to right */
+        }
+        .btn-example:hover {
+            background-color: #c7d2fe;
+        }
+
+        /* 按鈕 */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-success { background-color: var(--success); color: white; }
+        .btn-outline { background-color: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn-danger { background-color: #ef4444; color: white; }
+        .btn-claude { background-color: #8b5cf6; color: white; } /* Purple for AI */
+        
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 教學流程動態區塊 */
+        .procedure-block {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+        .btn-remove {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* Rubrics 表格 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            text-align: left;
+        }
+        th { background-color: #f1f5f9; color: var(--text-main); }
+        td input { border: none; background: transparent; padding: 4px; width: 100%; }
+        td input:focus { background: #fff; border: 1px solid var(--primary); }
+
+        /* 預覽前品質檢核 */
+        .quality-check-box {
+            background-color: #f0fdf4;
+            border: 2px solid var(--success);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .quality-check-box h3 {
+            color: var(--success);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+            cursor: pointer;
+        }
+        .checklist-item input[type="checkbox"] {
+            width: 1.2rem;
+            height: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* 指標小幫手 (側邊欄) - 升級可展開 */
+        .helper-sidebar {
+            width: 320px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+        .helper-title {
+            font-size: 1.2rem;
+            color: var(--accent);
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        details.helper-details {
+            margin-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+        details.helper-details summary {
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-main);
+            padding: 5px 0;
+        }
+        details.helper-details summary:hover {
+            color: var(--primary);
+        }
+        .helper-list {
+            list-style: none;
+            padding: 0;
+            margin: 5px 0 10px 0;
+            font-size: 0.9rem;
+        }
+        .helper-list li {
+            margin-bottom: 6px;
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+        .helper-abbr {
+            font-weight: bold;
+            color: var(--primary);
+            min-width: 45px;
+        }
+        .helper-tip-box {
+            background-color: #f8fafc;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            border-left: 3px solid var(--accent);
+        }
+
+        /* 預覽區塊 */
+        #preview-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-family: 'Times New Roman', 'Microsoft JhengHei', serif;
+            color: black;
+            line-height: 1.8;
+            max-height: 60vh;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        /* 模態框 (用於 Claude 提示詞) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+        .modal-header h3 { margin: 0; color: var(--accent); }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        #claudePromptArea { flex: 1; min-height: 300px; margin-bottom: 1rem; resize: vertical; }
+
+        /* 響應式 */
+        @media (max-width: 1024px) {
+            .main-container { flex-direction: column; }
+            .helper-sidebar { width: 100%; position: static; max-height: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🌏 本土化雙語教案設計互動填寫平台 <span style="font-size: 1rem; color: var(--text-light); font-weight: normal;">Localized Bilingual Lesson Plan Builder</span></h1>
+        <div class="progress-container">
+            <div class="progress-bar-bg">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-text" id="progressText">填寫完成度：0%</div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- 左側主內容區 -->
+        <div class="content-area">
+            
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-1')">1. 基本資料 Basic Info</button>
+                <button class="tab-btn" onclick="switchTab('tab-2')">2. 核心設計 Core Design</button>
+                <button class="tab-btn" onclick="switchTab('tab-3')">3. 雙語設計 Bilingual Design</button>
+                <button class="tab-btn" onclick="switchTab('tab-4')">4. 教學流程 Teaching Procedures</button>
+                <button class="tab-btn" onclick="switchTab('tab-5')">5. 評量與規準 Assessment</button>
+                <button class="tab-btn" onclick="switchTab('tab-6'); generatePreview();">6. 完整預覽 Final Preview</button>
+            </div>
+
+            <form id="lessonPlanForm">
+                
+                <!-- Tab 1: 基本資料 -->
+                <div id="tab-1" class="tab-content active">
+                    <div class="card">
+                        <h2 class="section-title">📘 基本資料 Basic Information</h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>科別 Department <span class="badge badge-success">紀錄用</span></label>
+                                <input type="text" id="f_department" data-req="true" placeholder="例如：資訊科、英文科、自然科">
+                            </div>
+                            <div class="form-group">
+                                <label>姓名 Teacher Name <span class="badge badge-success">紀錄用</span></label>
+                                <input type="text" id="f_teacher_name" data-req="true" placeholder="您的姓名">
+                            </div>
+                        </div>
+                        <hr style="border:0; border-top:1px dashed #ccc; margin:1rem 0;">
+
+                        <div class="hint-text" style="margin-bottom: 1.5rem;">
+                            <strong>📝 區塊說明：</strong>基本資料要清楚呈現這份教案適用的教學情境。
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>學校名稱 School
+                                    <button type="button" class="btn-example" onclick="fillExample('f_school', '市立大同國中')">💡 插入範例</button>
+                                </label>
+                                <input type="text" id="f_school" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>教案設計者 Designer</label>
+                                <input type="text" id="f_designer" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>課程名稱 Course
+                                    <button type="button" class="btn-example" onclick="fillExample('f_course', '資訊科技')">💡 插入範例</button>
+                                </label>
+                                <input type="text" id="f_course" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>學科領域 Domain / Subject (SU)</label>
+                                <input type="text" id="f_su" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>單元名稱 Unit
+                                    <button type="button" class="btn-example" onclick="fillExample('f_unit', 'Micro:bit 結合 RGB LED 燈條程式實作')">💡 插入範例</button>
+                                </label>
+                                <input type="text" id="f_unit" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>實施年級 Grade (GR)</label>
+                                <input type="text" id="f_gr" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>教材來源 Teaching Material
+                                    <button type="button" class="btn-example" onclick="fillExample('f_material', '自編教材')">💡 插入範例</button>
+                                </label>
+                                <input type="text" id="f_material" data-req="true">
+                            </div>
+                            <div class="form-group">
+                                <label>本單元共幾節 Total Sessions</label>
+                                <input type="number" id="f_sessions" data-req="true" min="1" placeholder="例如：2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: 核心設計 -->
+                <div id="tab-2" class="tab-content">
+                    <div class="card card-green">
+                        <h2 class="section-title">🎯 核心設計 Core Design</h2>
+                        
+                        <div class="form-group">
+                            <label>教學設計理念 Rationale for Instructional Design (RID)
+                                <span class="badge badge-accent">RID → GG、DG、LO</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_rid', '本單元透過生活中的智慧燈光情境，引導學生理解程式控制與硬體輸出的關係，並透過實作任務培養學生運算思維、問題解決與科技應用能力。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_rid" data-req="true"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>教學設計理念不是活動介紹，而是說明本單元為什麼值得教、學生為什麼需要學。<br>
+                                <strong>🎯 撰寫重點：</strong>素養導向、情境化、真實應用、學生生活經驗、跨領域思維、問題解決能力。<br>
+                                <strong>⚠️ 避免：</strong>只寫「本單元很有趣」、只描述活動流程、沒有連結學生能力。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>總綱核心素養 General Guidelines (GG)
+                                <span class="badge badge-primary">GG → LP、LC</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_gg', 'J-A2 具備理解情境全貌，並做獨立思考與分析的知能。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_gg" data-req="true" rows="2"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>填入 108 課綱總綱核心素養代碼與正式內容。<br>
+                                <strong>🎯 撰寫重點：</strong>使用正式課綱文字，不自行改寫，不加入英文版課綱。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>領綱核心素養 Domain Guidelines (DG)
+                                <span class="badge badge-primary">DG → GG、SU、LP、LC</span>
+                            </label>
+                            <textarea id="f_dg" data-req="true" rows="2"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>填入該學科領域對應的核心素養代碼與內容。<br>
+                                <strong>⚠️ 避免：</strong>只填本科領綱，不要放英文領域內容(除非本課就是英語科)，要能對應學習表現與學習內容。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>校本素養指標 School-based Competences (SBC)
+                                <span class="badge badge-primary">SBC → LP、LC</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_sbc', '能主動探索問題，運用科技工具解決生活情境中的任務。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_sbc" data-req="true" rows="2"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>若學校有願景、學生圖像、校本素養，請填入。若無可填寫「無」。
+                            </div>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>學習表現 Learning Performance (LP)
+                                    <span class="badge badge-warning">LP、LC → TP</span>
+                                </label>
+                                <textarea id="f_lp" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>學生在學科中應該展現出的能力。<br>
+                                    <strong>🎯 撰寫重點：</strong>列出最重要的 2~3 項，只寫「學科」學習表現。<br>
+                                    <strong>⚠️ 避免：</strong>把「聽懂英文單字」寫成學科學習表現；放太多條卻沒有真的教到。
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>學習內容 Learning Contents (LC)
+                                    <span class="badge badge-warning">LP、LC → TP</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_lc', '1. 程式控制\n2. 輸入與輸出\n3. LED 顏色控制')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_lc" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>本單元真正要學的學科概念。<br>
+                                    <strong>🎯 撰寫重點：</strong>列出最重要的 2~3 項，聚焦學科核心內容。<br>
+                                    <strong>⚠️ 避免：</strong>把活動名稱當成學習內容。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>單元學習目標 Learning Objectives (LO)
+                                <span class="badge badge-primary">LO → SU、LP、LC</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_lo', '1. (認知) 能說出 RGB 三原色的基本概念。\n2. (技能) 能正確撰寫 micro:bit 控制 LED 燈條的程式。\n3. (情意) 能在小組合作中完成燈光任務設計。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_lo" data-req="true" rows="4"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>學習目標要寫學生完成學習後能做到什麼(認知、技能、情意/態度)。<br>
+                                <strong>🎯 撰寫重點：</strong>一個目標只描述一種行為，要有具體可觀察結果。使用「動詞＋名詞」。<br>
+                                <strong>⚠️ 避免：</strong>寫「學生能了解...」、「認識...」，請改用具體的「說出、操作、設計、完成、解釋」。
+                            </div>
+                        </div>
+                        
+                        <hr style="border:0; border-top:1px dashed #ccc; margin:1.5rem 0;">
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>學科準備度 Readiness of Domain (SRS)
+                                    <span class="badge badge-success">SRS → SU、GR</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_srs', '學生已具備基礎積木式程式設計經驗，能使用序列、重複與條件判斷完成簡單任務，但對於外接硬體控制仍需要教師示範與引導。')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_srs" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>說明學生在學習本單元前，已經具備哪些學科先備知識。引導問題：學生已學過什麼？已經會做什麼？有哪些相關經驗？
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>英語準備度 Readiness of English (SRE)
+                                    <span class="badge badge-success">SRE → GR</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_sre', '1. Ss can understand simple classroom instructions.\n2. Ss know basic color words such as red, green, and blue.\n3. Ss can repeat key vocabulary with teacher support.')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_sre" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>依學生真實英語程度撰寫。可用句型：Ss know... / Ss can do... / Ss understand...<br>
+                                    <strong>⚠️ 避免：</strong>把學生寫成英文超人，要考量差異化。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: 雙語設計 -->
+                <div id="tab-3" class="tab-content">
+                    <div class="card card-orange">
+                        <h2 class="section-title">🧩 雙語設計 Bilingual Design</h2>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>教師使用中英文時機 Teacher Language (TUET)
+                                    <span class="badge badge-accent">TUET → SRE、TP</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_tuet', '教師於活動開始時使用簡短英文指令，如 “Turn on your micro:bit.”、“Check your code.”，並搭配中文說明確保學生理解。')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_tuet" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>說明教師何時使用英文(如：課堂指令、關鍵字彙、簡短提問、步驟提示)。
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>學生使用中英文時機 Student Language (TUES)
+                                    <span class="badge badge-accent">TUES → SRE、TP</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_tues', '學生能使用 “The LED is red.”、“I use loop.” 等簡短句型描述程式結果。')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_tues" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>說明學生何時使用英文(如：跟讀關鍵字、回答簡短句、小組紀錄)。<br>
+                                    <strong>🎯 撰寫重點：</strong>主要授課語言仍以中文為主，聽、讀可以多一點，說、寫不要一下子太硬核。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>教學方法 Teaching Methods (TM)
+                                <span class="badge badge-primary">TM → LO、TP</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_tm', '本單元採用「示範法」與「合作學習法」。教師先示範 micro:bit 與 LED 燈條的連接與程式撰寫方式，再讓學生以小組合作完成燈光任務，協助學生從觀察、模仿到獨立操作。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_tm" data-req="true"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>「教師教授學習重點的特定方式」，重點在於如何幫助學生理解學科內容。<br>
+                                <strong>👉 可選方法：</strong>講述法、示範法、問答法、討論法、合作學習法、探究式教學、概念獲取/發展法、差異化教學、精熟學習法。<br>
+                                <strong>⚠️ 避免：</strong>只寫「活潑教學」或「遊戲化」，且沒有說明為何適合本單元。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>教學策略 Teaching Strategies (TS)
+                                <span class="badge badge-primary">TS → GR、TM、TP</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_ts', '本單元以生活中的智慧燈光情境導入，搭配圖片、實物 LED 燈條與雙語字卡作為鷹架，並透過異質分組讓學生共同完成任務，降低英文與程式學習的雙重負荷。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_ts" data-req="true"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>「誘發學生學習動機、支持學生理解與參與的安排」。(方法是「怎麼教」，策略是「怎麼讓學生學得進去」)<br>
+                                <strong>👉 可選策略：</strong>情境導入、問題導向、任務導向、鷹架支持(字卡/步驟表)、多模態輔助、異質分組、差異化任務、即時回饋。<br>
+                                <strong>⚠️ 避免：</strong>把教學方法和教學策略寫成一樣；只寫「提升動機」但沒有具體做法。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>雙語教學技巧 Bilingual Teaching Techniques
+                                <button type="button" class="btn-example" onclick="fillExample('f_btt', '教師使用 First, Next, Finally 作為步驟路標語，並搭配圖示與實物操作，協助學生理解英文指令與程式步驟。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_btt" data-req="true"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>應用於雙語授課的特定溝通技巧。<br>
+                                <strong>👉 可選技巧：</strong>簡化字彙、放慢語速、重複句型、換句話說、舉例說明、比較與對照(on/off)、使用路標語(First/Next)、多模態學習、理解檢核(Show me)、延長候答時間。<br>
+                                <strong>⚠️ 避免：</strong>只問英文好的學生，把少數學生的反應當成全班都懂。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>教學資源及輔助器材 Teaching Resources and Aids (TRA)
+                                <span class="badge badge-success">TRA → SRS、SRE、TP</span>
+                                <button type="button" class="btn-example" onclick="fillExample('f_tra', '本單元使用 micro:bit、RGB LED 燈條、雙語字卡、操作步驟圖與學習單，協助學生透過視覺與實作理解程式控制概念。')">💡 插入範例</button>
+                            </label>
+                            <textarea id="f_tra" data-req="true"></textarea>
+                            <div class="hint-text">
+                                <strong>📝 欄位說明：</strong>包含 教學資源(PPT, 學習單, 字卡) 與 教學設備(電腦, 平板, 實物教具)。<br>
+                                <strong>🎯 撰寫重點：</strong>資源設計要能照顧英文能力較弱的學生(例如中英對照、關鍵字註解)。
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>議題融入 Issues Integrated (II)</label>
+                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                <select id="f_ii" data-req="true" style="width: auto; flex:1; min-width: 200px;">
+                                    <option value="">請選擇...</option>
+                                    <option value="無">無</option>
+                                    <option value="科技教育">科技教育</option>
+                                    <option value="資訊教育">資訊教育</option>
+                                    <option value="資訊倫理">資訊倫理</option>
+                                    <option value="AI 素養">AI 素養</option>
+                                    <option value="SDGs">SDGs</option>
+                                    <option value="媒體識讀">媒體識讀</option>
+                                    <option value="性別平等">性別平等</option>
+                                    <option value="人權教育">人權教育</option>
+                                    <option value="環境教育">環境教育</option>
+                                    <option value="安全教育">安全教育</option>
+                                    <option value="防災教育">防災教育</option>
+                                    <option value="多元文化">多元文化</option>
+                                    <option value="國際教育">國際教育</option>
+                                    <option value="閱讀素養">閱讀素養</option>
+                                </select>
+                                <input type="text" id="f_ii_desc" placeholder="請簡述如何融入該議題 (選填)" style="flex:2; min-width: 300px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: 教學流程 -->
+                <div id="tab-4" class="tab-content">
+                    <div class="card card-purple">
+                        <h2 class="section-title">📝 教學流程 Teaching Procedures (TP)</h2>
+                        
+                        <div class="hint-text" style="margin-bottom: 1.5rem;">
+                            <strong>⚠️ 流程總提醒：</strong>教學流程不是逐字稿，而是清楚寫出每階段做什麼、學生做什麼、使用什麼語言、如何評量。(TP 需要對應 LP、LC、LO、TUET、TUES、TM、TS、TRA、AM)<br>
+                            <strong>🎯 撰寫原則：</strong>條列式、清楚具體、標示時間。英文使用時機以「聽、讀較多；說、寫較少」為原則。強調學生理解學科內容。
+                        </div>
+
+                        <div id="procedures-container">
+                            <!-- 動態新增區塊 -->
+                        </div>
+
+                        <button type="button" class="btn btn-outline" onclick="addProcedure()">
+                            + 新增一節課 (Add Session)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tab 5: 評量與規準 -->
+                <div id="tab-5" class="tab-content">
+                    <div class="card">
+                        <h2 class="section-title">✅ 評量與規準 Assessment & Rubrics</h2>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>評量方法 Assessment Methods (AM)
+                                    <span class="badge badge-warning">AM → LO、TP</span>
+                                    <button type="button" class="btn-example" onclick="fillExample('f_am', '本單元採用實作評量與觀察評量。教師評估學生是否能完成 LED 燈條控制任務，並觀察學生在小組合作中的參與與問題解決表現。')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_am" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>判斷學生是否達成學習目標的方法。<br>
+                                    <strong>👉 可選方法：</strong>紙筆評量、實作評量、真實評量、口語評量、觀察評量、同儕評量、自我評量、檔案評量。<br>
+                                    <strong>⚠️ 避免：</strong>評量方式沒有對應學習目標；只用口語問答評量實作能力。
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>評量工具 Assessment Tools (AT)
+                                    <button type="button" class="btn-example" onclick="fillExample('f_at', '作品紀錄表、小組合作檢核表')">💡 插入範例</button>
+                                </label>
+                                <textarea id="f_at" data-req="true"></textarea>
+                                <div class="hint-text">
+                                    <strong>📝 欄位說明：</strong>實際用來執行評量的工具。如：學習單、任務單、檢核表(是/否/次數)、評定量表、Quiz。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>評量規準 Rubrics (RU)
+                                <span class="badge badge-warning">RU → AM、LO</span>
+                            </label>
+                            <div class="hint-text" style="margin-bottom: 10px;">
+                                <strong>📝 欄位說明：</strong>用來說明不同表現等級的具體標準。建議面向：學科知識、實作技能、問題解決、小組合作、英語參與。
+                            </div>
+                            <table id="rubricTable">
+                                <thead>
+                                    <tr>
+                                        <th>評量面向 (Aspect)</th>
+                                        <th>優良 (Excellent)</th>
+                                        <th>良好 (Good)</th>
+                                        <th>待加強 (Needs Improvement)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rubricBody">
+                                    <tr>
+                                        <td><input type="text" class="ru-aspect" value="學科知識" data-req="true"></td>
+                                        <td><input type="text" class="ru-exc" value="能正確說明 RGB 與 LED 控制概念" data-req="true"></td>
+                                        <td><input type="text" class="ru-good" value="能說出部分概念" data-req="true"></td>
+                                        <td><input type="text" class="ru-need" value="需要教師提示才能說明" data-req="true"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><input type="text" class="ru-aspect" placeholder="例如：實作技能" data-req="true"></td>
+                                        <td><input type="text" class="ru-exc" placeholder="獨立完成..." data-req="true"></td>
+                                        <td><input type="text" class="ru-good" placeholder="在提示下完成..." data-req="true"></td>
+                                        <td><input type="text" class="ru-need" placeholder="無法完成..." data-req="true"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button type="button" class="btn btn-outline" style="margin-top: 10px; padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="addRubricRow()">+ 新增規準面向</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 6: 完整預覽 -->
+                <div id="tab-6" class="tab-content">
+                    
+                    <!-- 品質檢核區 -->
+                    <div class="quality-check-box">
+                        <h3>✅ 預覽前品質檢核 (Quality Checklist)</h3>
+                        <p style="margin-top:0; color:var(--text-light); font-size:0.9rem;">送出或複製前，請確認您已完成以下重點：</p>
+                        <label class="checklist-item"><input type="checkbox"> 學習目標是否具體？ (使用「動詞＋名詞」，而非「了解」)</label>
+                        <label class="checklist-item"><input type="checkbox"> 教學方法是否有說明理由？</label>
+                        <label class="checklist-item"><input type="checkbox"> 教學策略是否具體？ (有說明如何鷹架支持或引起動機)</label>
+                        <label class="checklist-item"><input type="checkbox"> 英文使用時機是否合理？ (沒有把學生當成英文超人)</label>
+                        <label class="checklist-item"><input type="checkbox"> 評量是否對應學習目標？</label>
+                        <label class="checklist-item"><input type="checkbox"> 教學流程是否清楚包含教師與學生行為？</label>
+                    </div>
+
+                    <div class="card card-primary">
+                        <h2 class="section-title">📄 完整預覽 Final Preview</h2>
+                        <div id="preview-content">
+                            <!-- 預覽內容將由 JS 動態生成 -->
+                            載入中...
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button type="button" class="btn btn-danger" onclick="clearForm()">🗑️ 清除重填</button>
+                            <button type="button" class="btn btn-claude" onclick="generateClaudePrompt()">🤖 產生 Claude 教案生成提示詞</button>
+                            <button type="button" class="btn btn-success" onclick="copyToClipboard()">📋 一鍵複製教案至 Word</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 右側：指標小幫手 (升級版) -->
+        <aside class="helper-sidebar">
+            <h3 class="helper-title">💡 指標小幫手</h3>
+            <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem;">點擊展開檢核代碼說明</p>
+            
+            <details class="helper-details">
+                <summary>核心設計區代碼</summary>
+                <ul class="helper-list">
+                    <li><span class="helper-abbr">RID</span> 教學設計理念</li>
+                    <li><span class="helper-abbr">GG</span> 總綱核心素養</li>
+                    <li><span class="helper-abbr">DG</span> 領綱核心素養</li>
+                    <li><span class="helper-abbr">SBC</span> 校本素養指標</li>
+                    <li><span class="helper-abbr">SU</span> 學科領域</li>
+                    <li><span class="helper-abbr">GR</span> 實施年級</li>
+                    <li><span class="helper-abbr">LP</span> 學習表現</li>
+                    <li><span class="helper-abbr">LC</span> 學習內容</li>
+                    <li><span class="helper-abbr">SRS</span> 學科準備度</li>
+                    <li><span class="helper-abbr">SRE</span> 英語準備度</li>
+                    <li><span class="helper-abbr">LO</span> 單元學習目標</li>
+                </ul>
+            </details>
+
+            <details class="helper-details">
+                <summary>雙語設計與評量代碼</summary>
+                <ul class="helper-list">
+                    <li><span class="helper-abbr">TUET</span> 教師用中英文時機</li>
+                    <li><span class="helper-abbr">TUES</span> 學生用中英文時機</li>
+                    <li><span class="helper-abbr">TM</span> 教學方法</li>
+                    <li><span class="helper-abbr">TS</span> 教學策略</li>
+                    <li><span class="helper-abbr">TRA</span> 資源及輔助器材</li>
+                    <li><span class="helper-abbr">AM</span> 評量方法</li>
+                    <li><span class="helper-abbr">RU</span> 評量規準</li>
+                    <li><span class="helper-abbr">TP</span> 教學流程</li>
+                    <li><span class="helper-abbr">II</span> 議題融入</li>
+                </ul>
+            </details>
+
+            <div class="helper-tip-box">
+                <strong>快速分辨：教學方法 vs 教學策略</strong><br><br>
+                📌 <strong>教學方法 (TM)：</strong>教師如何教授學科重點。<br>
+                📌 <strong>教學策略 (TS)：</strong>如何引起動機、降低負荷、提高參與。<br><br>
+                <em>一句話記法：<br>方法是「怎麼教」，策略是「怎麼讓學生學得進去」。</em>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 模態框 (用於顯示 Claude 提示詞) -->
+    <div id="claudeModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🤖 Claude 教案生成提示詞</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <p style="font-size:0.9rem; margin-top:0;">請複製下方內容，貼給 Claude 幫您潤飾與生成正式雙語教案：</p>
+            <textarea id="claudePromptArea" readonly></textarea>
+            <div style="text-align: right;">
+                <button class="btn btn-primary" onclick="copyClaudePrompt()">📋 複製提示詞</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let procedureCount = 0;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            addProcedure(); // 預設加入第一節課
+            setupInputListeners();
+            updateProgress();
+        });
+
+        // 頁籤切換
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 一鍵插入範例
+        function fillExample(elementId, text) {
+            const el = document.getElementById(elementId);
+            if(el) {
+                el.value = text;
+                // Highlight to indicate change
+                el.style.backgroundColor = '#dbeafe';
+                setTimeout(() => el.style.backgroundColor = '#fff', 500);
+                updateProgress();
+            }
+        }
+
+        // 綁定輸入事件來更新進度條
+        function setupInputListeners() {
+            const form = document.getElementById('lessonPlanForm');
+            form.addEventListener('input', updateProgress);
+        }
+
+        // 更新完成度百分比
+        function updateProgress() {
+            const requiredFields = document.querySelectorAll('[data-req="true"]');
+            let filledCount = 0;
+            
+            requiredFields.forEach(field => {
+                if (field.value.trim() !== '') {
+                    filledCount++;
+                }
+            });
+
+            const total = requiredFields.length;
+            const percentage = total === 0 ? 0 : Math.round((filledCount / total) * 100);
+            
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').innerText = `填寫完成度：${percentage}%`;
+        }
+
+        // 動態新增教學流程 (TP)
+        function addProcedure() {
+            procedureCount++;
+            const container = document.getElementById('procedures-container');
+            
+            const html = `
+                <div class="procedure-block" id="proc-${procedureCount}">
+                    <button type="button" class="btn-remove" onclick="removeProcedure(${procedureCount})">X 移除此節</button>
+                    <h3 style="margin-top:0; color:var(--primary);">第 ${procedureCount} 節 Session ${procedureCount}</h3>
+                    
+                    <div class="form-grid">
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <label>節次名稱 Session Name 
+                                <button type="button" class="btn-example" onclick="document.querySelector('#proc-${procedureCount} .proc-name').value='引起動機與基礎概念'">💡</button>
+                            </label>
+                            <input type="text" class="proc-name" data-req="true" placeholder="例如：引起動機與單字介紹">
+                        </div>
+                        <div class="form-group" style="margin-bottom:1rem;">
+                            <label>時間 Time (mins)</label>
+                            <input type="number" class="proc-time" data-req="true" placeholder="例如：45">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:1rem;">
+                        <label>準備階段 Preparation stage
+                            <button type="button" class="btn-example" onclick="document.querySelector('#proc-${procedureCount} .proc-prep').value='教師展示智慧燈光圖片，引導學生觀察生活應用。\\n介紹關鍵字彙：LED, color。\\n學生跟讀字彙並完成字卡配對。'">💡</button>
+                        </label>
+                        <textarea class="proc-prep" data-req="true"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:1rem;">
+                        <label>發展階段 Development stage
+                            <button type="button" class="btn-example" onclick="document.querySelector('#proc-${procedureCount} .proc-dev').value='教師示範 micro:bit 連接 LED 燈條。\\n學生依照步驟圖完成接線。\\n學生修改程式讓 LED 顯示指定顏色。'">💡</button>
+                        </label>
+                        <textarea class="proc-dev" data-req="true"></textarea>
+                    </div>
+                    <div class="form-group" style="margin-bottom:1rem;">
+                        <label>總結階段 Summary stage
+                            <button type="button" class="btn-example" onclick="document.querySelector('#proc-${procedureCount} .proc-sum').value='學生分享作品。\\n教師以檢核表確認完成進度。'">💡</button>
+                        </label>
+                        <textarea class="proc-sum" data-req="true"></textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>教師語言 Teacher Lang.</label>
+                            <input type="text" class="proc-t-lang" data-req="true" placeholder="例如：70%中文, 30%英文指令">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>學生語言 Student Lang.</label>
+                            <input type="text" class="proc-s-lang" data-req="true" placeholder="例如：中文討論, 英文關鍵字發表">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label>對應指標 Mapping</label>
+                            <input type="text" class="proc-mapping" data-req="true" placeholder="LO1, TM1, AM1">
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            updateProgress();
+        }
+
+        // 移除教學流程
+        function removeProcedure(id) {
+            const el = document.getElementById(`proc-${id}`);
+            if (el) {
+                el.remove();
+                updateProgress();
+            }
+        }
+
+        // 新增規準面向
+        function addRubricRow() {
+            const tbody = document.getElementById('rubricBody');
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="ru-aspect" placeholder="面向名稱..." data-req="true"></td>
+                <td><input type="text" class="ru-exc" data-req="true"></td>
+                <td><input type="text" class="ru-good" data-req="true"></td>
+                <td><input type="text" class="ru-need" data-req="true"></td>
+            `;
+            tbody.appendChild(tr);
+            updateProgress();
+        }
+
+        // 生成預覽內容 (純文字排版，方便複製到 Word)
+        function generatePreview() {
+            const val = (id) => document.getElementById(id) ? document.getElementById(id).value.trim() || '(未填寫)' : '';
+            
+            let previewText = `【本土化雙語教案設計 Localized Bilingual Lesson Plan】\n\n`;
+            
+            previewText += `=== 1. 基本資料 Basic Information ===\n`;
+            previewText += `紀錄資料: ${val('f_department')} - ${val('f_teacher_name')}\n`;
+            previewText += `學校名稱 School: ${val('f_school')}\n`;
+            previewText += `課程名稱 Course: ${val('f_course')}\n`;
+            previewText += `單元名稱 Unit: ${val('f_unit')}\n`;
+            previewText += `學科領域 Domain/Subject: ${val('f_su')}\n`;
+            previewText += `教材來源 Teaching Material: ${val('f_material')}\n`;
+            previewText += `教案設計者 Designer: ${val('f_designer')}\n`;
+            previewText += `實施年級 Grade: ${val('f_gr')}\n`;
+            previewText += `總節數 Total Sessions: ${val('f_sessions')}\n\n`;
+
+            previewText += `=== 2. 核心設計 Core Design ===\n`;
+            previewText += `[教學設計理念 Rationale]\n${val('f_rid')}\n\n`;
+            previewText += `[核心素養 Core Competences]\n總綱 GG: ${val('f_gg')}\n領綱 DG: ${val('f_dg')}\n校本 SBC: ${val('f_sbc')}\n\n`;
+            previewText += `[學習重點 Learning Focus]\n學習表現 LP:\n${val('f_lp')}\n學習內容 LC:\n${val('f_lc')}\n\n`;
+            previewText += `[學生準備度 Student Readiness]\n學科準備度 SRS:\n${val('f_srs')}\n英語準備度 SRE:\n${val('f_sre')}\n\n`;
+            previewText += `[學習目標 Learning Objectives]\n${val('f_lo')}\n\n`;
+
+            previewText += `=== 3. 雙語教學設計 Bilingual Design ===\n`;
+            previewText += `[中英文使用時機 Language Timing]\n教師 TUET:\n${val('f_tuet')}\n學生 TUES:\n${val('f_tues')}\n\n`;
+            previewText += `[教學方法與策略 Methods & Strategies]\n教學方法 TM:\n${val('f_tm')}\n教學策略 TS:\n${val('f_ts')}\n\n`;
+            previewText += `[雙語教學技巧 Bilingual Teaching Techniques]\n${val('f_btt')}\n\n`;
+            previewText += `[教學資源與輔助器材 Teaching Resources & Aids]\n${val('f_tra')}\n\n`;
+            
+            let iiStr = val('f_ii');
+            if(val('f_ii_desc') && val('f_ii_desc') !== '(未填寫)') iiStr += ` - ${val('f_ii_desc')}`;
+            previewText += `[議題融入 Issues Integrated]\n${iiStr}\n\n`;
+
+            previewText += `=== 4. 評量與規準 Assessment & Rubrics ===\n`;
+            previewText += `[評量方法 Assessment Methods]\n${val('f_am')}\n\n`;
+            previewText += `[評量工具 Assessment Tools]\n${val('f_at')}\n\n`;
+            
+            previewText += `[評量規準 Rubrics]\n`;
+            const rubricRows = document.querySelectorAll('#rubricBody tr');
+            rubricRows.forEach(row => {
+                const aspect = row.querySelector('.ru-aspect').value.trim() || '(面向)';
+                const exc = row.querySelector('.ru-exc').value.trim() || '-';
+                const good = row.querySelector('.ru-good').value.trim() || '-';
+                const need = row.querySelector('.ru-need').value.trim() || '-';
+                previewText += `  • 面向：${aspect}\n    優良: ${exc}\n    良好: ${good}\n    待加強: ${need}\n`;
+            });
+            previewText += `\n`;
+
+            previewText += `=== 5. 教學流程 Teaching Procedures ===\n`;
+            const blocks = document.querySelectorAll('.procedure-block');
+            if (blocks.length === 0) {
+                previewText += `(尚未新增教學流程)\n`;
+            } else {
+                blocks.forEach((block, index) => {
+                    const q = (sel) => block.querySelector(sel).value.trim() || '(未填寫)';
+                    previewText += `[第 ${index + 1} 節] ${q('.proc-name')} (${q('.proc-time')} mins)\n`;
+                    previewText += `  ■ 準備階段 Preparation:\n    ${q('.proc-prep')}\n`;
+                    previewText += `  ■ 發展階段 Development:\n    ${q('.proc-dev')}\n`;
+                    previewText += `  ■ 總結階段 Summary:\n    ${q('.proc-sum')}\n`;
+                    previewText += `  ■ 語言使用: 教師 (${q('.proc-t-lang')}) | 學生 (${q('.proc-s-lang')})\n`;
+                    previewText += `  ■ 對應指標: ${q('.proc-mapping')}\n\n`;
+                });
+            }
+            
+            previewText += `=== 6. 參考資料 Reference ===\n(請依需求自行補充)\n\n`;
+            previewText += `=== 7. 附錄 Appendix ===\n(請依需求自行補充學習單或講義)`;
+
+            document.getElementById('preview-content').innerText = previewText;
+            return previewText;
+        }
+
+        // 產生 Claude 提示詞
+        function generateClaudePrompt() {
+            const draft = generatePreview();
+            const prompt = `請扮演一位臺灣的「國中雙語教案設計專家」。我正在設計一份本土化雙語教案，以下是我的草案內容。
+請幫我潤飾並生成一份排版專業、符合 108 課綱精神的完整雙語教案。
+
+【任務要求】：
+1. 語氣專業、具教育學術感，但易於閱讀。
+2. 檢查「學習目標 (LO)」是否具備具體的動詞與名詞，若不夠具體請幫我修正。
+3. 檢查「教學方法與策略」是否能有效對應雙語情境，並擴充細節。
+4. 檢查「教學流程」是否邏輯順暢，補足缺失的引導語或過渡句。
+5. 確保英文使用時機合理，沒有過度依賴艱深的英文。
+
+【我的教案草案】：
+${draft}
+
+請直接輸出潤飾後的完整教案，標題層級與排版需清楚分明，適合直接貼入 Word 報告中。`;
+            
+            document.getElementById('claudePromptArea').value = prompt;
+            document.getElementById('claudeModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('claudeModal').style.display = 'none';
+        }
+
+        function copyClaudePrompt() {
+            const textArea = document.getElementById('claudePromptArea');
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert("✅ 提示詞已複製！請前往 Claude 貼上對話。");
+            } catch (err) {
+                alert("複製失敗，請手動全選並複製。");
+            }
+        }
+
+        // 複製到剪貼簿 (Word預覽)
+        function copyToClipboard() {
+            const textToCopy = document.getElementById('preview-content').innerText;
+            
+            const textArea = document.createElement("textarea");
+            textArea.value = textToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                alert("✅ 教案已成功複製到剪貼簿！您可以直接貼上至 Word 進行排版。");
+            } catch (err) {
+                alert("複製失敗，請手動全選預覽區塊並複製。");
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // 清除重填
+        function clearForm() {
+            if (confirm("⚠️ 確定要清除所有填寫內容嗎？此動作無法復原！")) {
+                document.getElementById('lessonPlanForm').reset();
+                
+                // 重設所有背景色(防範範例按鈕留下的高亮)
+                document.querySelectorAll('input, textarea').forEach(el => el.style.backgroundColor = '#f8fafc');
+                
+                document.getElementById('procedures-container').innerHTML = '';
+                procedureCount = 0;
+                addProcedure(); // 重新加入一個空白的
+                document.getElementById('rubricBody').innerHTML = `
+                    <tr>
+                        <td><input type="text" class="ru-aspect" value="學科知識" data-req="true"></td>
+                        <td><input type="text" class="ru-exc" data-req="true"></td>
+                        <td><input type="text" class="ru-good" data-req="true"></td>
+                        <td><input type="text" class="ru-need" data-req="true"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="ru-aspect" placeholder="例如：實作技能" data-req="true"></td>
+                        <td><input type="text" class="ru-exc" data-req="true"></td>
+                        <td><input type="text" class="ru-good" data-req="true"></td>
+                        <td><input type="text" class="ru-need" data-req="true"></td>
+                    </tr>
+                `;
+                updateProgress();
+                generatePreview();
+                alert("已清空表單！");
+            }
+        }
+    </script>
+</body>
+</html>
