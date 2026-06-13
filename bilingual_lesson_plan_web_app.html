@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>國中本土雙語教案互動填寫 Web App</title>
+<style>
+:root{--bg:#f7f9ff;--card:#fff;--ink:#1f2937;--muted:#6b7280;--brand:#6366f1;--brand2:#06b6d4;--ok:#22c55e;--warn:#f59e0b;--danger:#ef4444;--line:#e5e7eb;--soft:#eef2ff;--soft2:#ecfeff}
+*{box-sizing:border-box}body{margin:0;font-family:"Noto Sans TC",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:linear-gradient(135deg,#eef2ff,#ecfeff 48%,#fff7ed);color:var(--ink)}
+header{position:sticky;top:0;z-index:10;background:rgba(255,255,255,.88);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1180px;margin:auto;padding:18px}h1{font-size:clamp(24px,3vw,38px);margin:10px 0 6px}.subtitle{color:var(--muted);line-height:1.7}.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;align-items:stretch}.card{background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:0 16px 40px rgba(31,41,55,.08)}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.badge{padding:7px 11px;border-radius:999px;background:var(--soft);color:#4338ca;font-size:13px;font-weight:700}.badge.cyan{background:var(--soft2);color:#0e7490}.toolbar{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}.btn{border:0;border-radius:14px;padding:11px 14px;font-weight:800;cursor:pointer;background:var(--brand);color:white;box-shadow:0 8px 18px rgba(99,102,241,.25)}.btn.secondary{background:white;color:var(--brand);border:1px solid #c7d2fe;box-shadow:none}.btn.warn{background:var(--warn)}.btn.danger{background:var(--danger)}.btn.ok{background:var(--ok)}
+.progressBox{display:flex;gap:12px;align-items:center}.progress{height:14px;background:#e5e7eb;border-radius:999px;overflow:hidden;flex:1}.bar{height:100%;width:0%;background:linear-gradient(90deg,var(--brand),var(--brand2));transition:.3s}.score{font-weight:900;color:var(--brand)}
+.layout{display:grid;grid-template-columns:280px 1fr;gap:18px;margin-top:18px}.nav{position:sticky;top:96px;align-self:start;max-height:calc(100vh - 120px);overflow:auto}.nav button{width:100%;text-align:left;border:1px solid var(--line);background:white;border-radius:14px;padding:12px;margin-bottom:8px;cursor:pointer;font-weight:800;color:#374151}.nav button.active{background:linear-gradient(90deg,#6366f1,#06b6d4);color:white}.section{display:none}.section.active{display:block}.section h2{margin-top:0;font-size:25px}.tip{border-left:6px solid var(--brand2);background:#f0fdfa;padding:14px;border-radius:14px;line-height:1.75;color:#155e75;margin:12px 0}.warning{border-left-color:var(--warn);background:#fffbeb;color:#92400e}.field{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:18px;background:#fff}.field label{display:flex;align-items:center;gap:8px;font-weight:900;margin-bottom:8px}.tag{font-size:12px;border-radius:999px;padding:4px 8px;background:#f3f4f6;color:#4b5563}.required{background:#fee2e2;color:#b91c1c}.indicator{background:#dbeafe;color:#1d4ed8}.bilingual{background:#dcfce7;color:#15803d}.placeholder{font-size:13px;color:var(--muted);line-height:1.6;margin:6px 0 8px}.help{font-size:13px;background:#f9fafb;border:1px dashed #d1d5db;border-radius:12px;padding:10px;color:#4b5563;line-height:1.7;margin-top:8px}input,textarea,select{width:100%;border:1px solid #d1d5db;border-radius:14px;padding:12px;font-size:15px;background:#fff}textarea{min-height:110px;resize:vertical;line-height:1.6}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.examples{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.example{background:#f8fafc;border:1px solid var(--line);border-radius:16px;padding:12px;line-height:1.7}.example b{color:#4338ca}.mini{font-size:13px;color:var(--muted)}table{border-collapse:collapse;width:100%;background:white;border-radius:16px;overflow:hidden}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#eef2ff}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:12px;font-weight:800;margin:2px}.preview{white-space:pre-wrap;background:#111827;color:#f9fafb;border-radius:18px;padding:16px;max-height:500px;overflow:auto;line-height:1.6}.footer{margin:28px 0;color:var(--muted);text-align:center}.hidePrint{display:block}@media(max-width:900px){.hero,.layout,.grid2,.grid3{grid-template-columns:1fr}.nav{position:relative;top:0;max-height:none}}@media print{header,.nav,.toolbar,.hidePrint{display:none!important}.layout{display:block}.section{display:block!important}.card{box-shadow:none;border:1px solid #ddd;page-break-inside:avoid}body{background:white}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="progressBox"><strong>雙語教案填寫進度</strong><div class="progress"><div id="bar" class="bar"></div></div><span id="score" class="score">0%</span></div>
+</div></header>
+<main class="wrap">
+<section class="hero">
+<div class="card">
+<h1>國中本土雙語教案互動填寫 Web App</h1>
+<p class="subtitle">依「雙語課程教案設計 The Design of Bilingual Lesson Plan」格式整理，將原本難填的表格改成分段引導、指標標記、範例提示與一鍵匯出。適用數學、公民、歷史、地理、體育、健康教育、美術、音樂、生物、理化、生活科技、資訊科技等國中學科。</p>
+<div class="badges"><span class="badge">108課綱對應</span><span class="badge cyan">學科本位</span><span class="badge">中文主授課</span><span class="badge cyan">英文使用時機</span><span class="badge">評量對應目標</span></div>
+<div class="toolbar"><button class="btn" onclick="showPreview()">產生教案文字</button><button class="btn secondary" onclick="downloadTxt()">下載 TXT</button><button class="btn secondary" onclick="downloadJSON()">下載 JSON</button><button class="btn ok" onclick="window.print()">列印/另存PDF</button><button class="btn warn" onclick="fillDemo()">載入示範</button><button class="btn danger" onclick="clearAll()">清除</button></div>
+</div>
+<div class="card">
+<h2>填寫原則</h2>
+<p class="tip">先填「學習重點與學生準備度」，再寫「學習目標」，最後才設計教學活動。不要從活動開始硬湊，這樣教案會變得很像拼裝車。</p>
+<p class="tip warning">英文不要放進學科學習目標；英文是用來創造學科學習中的聽、說、讀、寫機會。</p>
+</div>
+</section>
+<section class="layout">
+<nav class="nav card" id="nav"></nav>
+<div id="sections"></div>
+</section>
+<div class="footer">Made for bilingual lesson planning｜單檔 HTML，可離線使用</div>
+</main>
+<script>
+const sections = [
+{ id:'basic', title:'1 基本資料', fields:[
+['school','學校名稱 School','required','例：臺北市立陽明高中國中部','填寫任教學校完整名稱。'],['course','課程名稱 Course','required','例：資訊科技、數學、歷史、健康教育','填入你教的科目。'],['unit','單元名稱 Unit','required','例：氣泡排序、比例、清領時期的臺灣、籃球傳接球','填入本次教學單元名稱。'],['domain','學科領域 Domain/Subject','required indicator','例：科技領域／資訊科技、社會領域／歷史','請對應國中領域與科目。'],['material','教材來源 Teaching Material','','例：自編、翰林版第三冊、康軒版第二冊','若為自編可直接填「自編」。'],['designer','教案設計者 Designer','','例：陳政川','填寫設計教師。'],['grade','實施年級 Grade','required','例：七年級、八年級、九年級','填寫實施年級。'],['sessions','本單元共幾節 Total Sessions','required','例：共2節，每節45分鐘','填寫完整節數。'] ]},
+{ id:'rationale', title:'2 教學設計理念', fields:[
+['rationale','教學設計理念 Rationale for Instructional Design','required indicator','請回答：1. 什麼知識或能力對學生重要？2. 為什麼重要？3. 本單元如何連結這些能力？','建議用三段式書寫：重要能力 → 重要原因 → 本單元設計連結。'] ]},
+{ id:'competence', title:'3 核心素養與校本指標', fields:[
+['general','總綱 General Guidelines','required indicator','填入108課綱總綱核心素養代碼與內容，不要自行改寫。','例如：A2系統思考與解決問題、B2科技資訊與媒體素養等。'],['domainGuideline','領綱 Domain/Subject Guidelines','required indicator','填入本科領綱核心素養代碼與內容，不要放英文領綱。','依科目查找官方課綱。'],['schoolBased','校本素養指標 School-based Competences','','若學校有願景、學生圖像、校本素養，請填入；若無可免填。','可寫學校願景與本單元的關聯。'] ]},
+{ id:'focus', title:'4 學科學習重點', fields:[
+['performance','學習表現 Learning Performance','required indicator','填寫最重要的2至3項。不要放英文領域內容。','只放本學科真正要學的表現。跨領域教學若有實際教學才放。'],['contents','學習內容 Learning Contents','required indicator','填寫最重要的2至3項。不要放英文領域內容。','學習內容要對應本單元概念、知識或技能。'] ]},
+{ id:'readiness', title:'5 學生準備度', fields:[
+['subjectReady','學科準備度 Readiness of Domain/Subject','required indicator','學生在本單元前已知道什麼、學過什麼、會做什麼、有哪些經驗？','回答三件事：已學過、目前會、學新知需要的先備知能。'],['englishReady','英語準備度 Readiness of English','required bilingual','Ss know...\nSs can do...\nSs understand...\nSs know how to...\nSs have learned...','要明確、具體、與本單元有關。可依學生興趣與先備知能預判，並用差異化支架回應落差。'] ]},
+{ id:'objectives', title:'6 單元學習目標', fields:[
+['cognitive','認知目標 Cognitive Objective','required indicator','例：學生能說出排序法的用途。','一個目標只描述一項行為；寫學習結果，不寫學習過程。'],['skill','技能目標 Skill Objective','required indicator','例：學生能完成一段氣泡排序程式。','使用可觀察動詞：操作、完成、製作、繪製、使用。'],['affective','情意/態度目標 Affective Objective','indicator','例：學生能在小組任務中展現合作態度。','可寫參與、合作、欣賞、尊重、關心等。'] ]},
+{ id:'language', title:'7 中英文使用時機', fields:[
+['teacherEnglish','教師使用英文時機 Teacher','required bilingual','例：課堂指令、關鍵字彙、流程路標、任務提醒、回饋語。','主授課語言是中文，此欄寫英文在哪些時機出現。'],['studentEnglish','學生使用英文時機 Students','required bilingual','例：跟讀關鍵字、回答短句、小組任務句型、出口票。','重點是創造聽、說、讀、寫英文機會，不是要求全英文討論。'] ]},
+{ id:'methods', title:'8 教學方法、策略與雙語技巧', fields:[
+['methods','教學方法 Teaching Methods','required indicator','例：講述法、問答法、示範教學法、合作學習法、概念獲取法、概念發展法。','要對照單元學習目標；方法是教師教導學習重點的方式。'],['strategies','教學策略 Teaching Strategies','required indicator','例：生活情境導入、問題導向、任務挑戰、分組競賽、學習單引導。','策略可誘發學習動機，需連結學生準備度與活動。'],['bilingualSkills','雙語教學技巧','required bilingual','例：簡單字彙、重複、換句話說、舉例、比較與對照、路標語、多模態、延長候答時間、追問確認理解。','避免只看會回答的學生；給足等待時間與支架。'] ]},
+{ id:'resources', title:'9 教學資源與輔助器材', fields:[
+['resources','教學資源及輔助器材 Teaching Resources and Aids','required','例：簡報、學習單、影片、平板、白板、教具、實驗器材、運動器材、樂器。','請清楚具體寫名稱。影片連結、學習單可放參考資料或附錄。'] ]},
+{ id:'assessment', title:'10 評量方法與規準', fields:[
+['assessment','評量方法 Assessment Methods','required indicator','例：實作評量、口語評量、紙筆評量、觀察評量、自我評量、檔案評量。','判斷是否能達成學習目標的方法就是好方法。'],['rubrics','評量規準 Rubrics','required indicator','例：優良/達成/待加強，或4/3/2/1等第規準。','檢核表可用是/否/次數；評分規準要描述品質表現。'] ]},
+{ id:'issues', title:'11 議題融入', fields:[
+['issues','議題融入 Issues Integrated','','例：資訊教育、生命教育、環境教育、性別平等、品德教育、安全教育、多元文化。','若無則免填；若有需在教學流程中看得到。'] ]},
+{ id:'procedure', title:'12 教學流程', fields:[
+['session1','第一節 Teaching Procedures - Session 1','required indicator bilingual','準備階段 Preparation stage\n1. ...\n發展階段 Development stage\n1. ...\n總結階段 Summary stage\n1. ...\n第一節結束 End of the first session','要對應學習目標；不要寫逐字稿；標記英文使用時機。'],['time1','第一節時間 Time','required','例：5分鐘、30分鐘、10分鐘','時間需與流程對應。'],['session2','第二節 Session 2','','準備階段...\n發展階段...\n總結階段...\n第二節結束 End of the second session','若只有一節可免填。'],['time2','第二節時間 Time','','例：5分鐘、30分鐘、10分鐘','若無第二節可免填。'],['session3','第三節 Session 3','','準備階段...\n發展階段...\n總結階段...\n第三節結束 End of the third session','若只有一至二節可免填。'],['time3','第三節時間 Time','','例：5分鐘、30分鐘、10分鐘','若無第三節可免填。'] ]},
+{ id:'refs', title:'13 參考資料與附錄', fields:[
+['references','參考資料 References','','例：課本、官方課綱、影片、網站、文章、學習單來源。','請列出教材、影片、網站或政策資料來源。'],['appendices','附錄 Appendices','','例：附錄1學習單、附錄2評量規準、附錄3字彙表。','可放學習單、檢核表、學生作品範例、字彙表。'] ]}
+];
+const examples = {
+math:['數學','比例與百分率','greater than / less than / equal / ratio / percent','Students can say: It is greater than __.'],
+history:['歷史','清領時期的臺灣','event / time / people / cause / effect','Students can say: The cause is __.'],
+pe:['體育','籃球傳接球','pass / catch / dribble / shoot / teamwork','Students can say: Pass the ball.'],
+tech:['資訊科技','排序演算法','input / output / algorithm / compare / swap','Students can say: Compare two numbers.']
+};
+function init(){const nav=document.getElementById('nav'), box=document.getElementById('sections');sections.forEach((s,i)=>{let b=document.createElement('button');b.textContent=s.title;b.onclick=()=>go(s.id);if(i===0)b.className='active';nav.appendChild(b);let sec=document.createElement('section');sec.className='section card '+(i===0?'active':'');sec.id=s.id;sec.innerHTML=`<h2>${s.title}</h2>${tips(s.id)}${s.fields.map(f=>fieldHTML(...f)).join('')}${s.id==='language'?languageBank():''}${s.id==='methods'?methodBank():''}${s.id==='assessment'?assessmentBank():''}${s.id==='basic'?subjectBank():''}`;box.appendChild(sec)});document.querySelectorAll('input,textarea').forEach(el=>{el.value=localStorage.getItem('bilingual_'+el.id)||'';el.addEventListener('input',()=>{localStorage.setItem('bilingual_'+el.id,el.value);updateProgress()})});updateProgress()}
+function fieldHTML(id,label,tags,ph,help){let taghtml=(tags||'').split(' ').filter(Boolean).map(t=>`<span class="tag ${t}">${t==='required'?'必填':t==='indicator'?'對應指標':t==='bilingual'?'雙語重點':t}</span>`).join('');let isShort=['school','course','unit','domain','material','designer','grade','sessions','time1','time2','time3'].includes(id);return `<div class="field"><label for="${id}">${label} ${taghtml}</label><div class="placeholder">${ph.replaceAll('\n','<br>')}</div>${isShort?`<input id="${id}" placeholder="${ph.split('\n')[0]}">`:`<textarea id="${id}" placeholder="${ph}"></textarea>`}<div class="help">${help}</div></div>`}
+function tips(id){const map={rationale:'本區是教案的靈魂：請寫「為什麼要教」，不是只寫「我要怎麼教」。',focus:'本區只放學科學習重點，不放英文領域學習重點。雙語是媒介，不是本單元的學科目標。',readiness:'準備度寫得越清楚，後面的雙語支架越好設計。',objectives:'請用可觀察動詞：說出、指出、比較、操作、完成、製作、解釋。',procedure:'流程採「準備、發展、總結」三階段；不用詳案，也不用逐字稿。'};return map[id]?`<p class="tip">${map[id]}</p>`:''}
+function subjectBank(){return `<h3>各科可套用的雙語字彙方向</h3><div class="examples"><div class="example"><b>數學</b><br>number, ratio, percent, angle, area</div><div class="example"><b>社會</b><br>map, location, event, cause, effect</div><div class="example"><b>自然</b><br>force, energy, cell, reaction, variable</div><div class="example"><b>藝能</b><br>color, rhythm, movement, teamwork, safety</div><div class="example"><b>科技</b><br>input, output, system, algorithm, design</div></div>`}
+function languageBank(){return `<h3>雙語句型支架</h3><table><tr><th>用途</th><th>教師可說</th><th>學生可說</th></tr><tr><td>開始</td><td>Today we will learn...</td><td>We will learn...</td></tr><tr><td>觀察</td><td>Look at the picture/data/map.</td><td>I see...</td></tr><tr><td>比較</td><td>Compare A and B.</td><td>A is bigger/smaller than B.</td></tr><tr><td>合作</td><td>Work with your partner.</td><td>I agree. / I have an idea.</td></tr><tr><td>總結</td><td>What did you learn today?</td><td>I learned...</td></tr></table>`}
+function methodBank(){return `<h3>方法與策略速選</h3><div class="badges"><span class="pill">講述法</span><span class="pill">問答法</span><span class="pill">示範教學法</span><span class="pill">合作學習法</span><span class="pill">概念獲取法</span><span class="pill">概念發展法</span><span class="pill">問題導向</span><span class="pill">任務導向</span><span class="pill">遊戲化</span><span class="pill">多模態支架</span></div>`}
+function assessmentBank(){return `<h3>目標與評量對應表</h3><table><tr><th>學習目標類型</th><th>適合評量</th><th>工具</th></tr><tr><td>說出、解釋、比較</td><td>口語評量、紙筆評量</td><td>問答、學習單、小測驗</td></tr><tr><td>操作、完成、製作</td><td>實作評量、作品評量</td><td>作品、任務單、檢核表</td></tr><tr><td>合作、尊重、參與</td><td>觀察評量、自我評量</td><td>觀察紀錄、自評表</td></tr></table>`}
+function go(id){document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach((b,i)=>b.classList.toggle('active',sections[i].id===id));window.scrollTo({top:0,behavior:'smooth'})}
+function data(){let o={};document.querySelectorAll('input,textarea').forEach(el=>o[el.id]=el.value.trim());return o}
+function updateProgress(){let req=[...document.querySelectorAll('.required')].map(t=>t.closest('.field').querySelector('input,textarea').id);let d=data();let done=req.filter(k=>d[k]).length;let pct=Math.round(done/req.length*100);document.getElementById('bar').style.width=pct+'%';document.getElementById('score').textContent=pct+'%'}
+function buildText(){let d=data();let out='雙語課程教案設計 The Design of Bilingual Lesson Plan\n\n';sections.forEach(s=>{out+='【'+s.title+'】\n';s.fields.forEach(f=>{out+=f[1]+'\n'+(d[f[0]]||'（未填）')+'\n\n'});out+='\n'});return out}
+function showPreview(){let old=document.getElementById('previewCard');if(old)old.remove();let div=document.createElement('div');div.id='previewCard';div.className='card';div.innerHTML='<h2>教案文字預覽</h2><div class="preview">'+escapeHTML(buildText())+'</div>';document.querySelector('.layout').after(div);div.scrollIntoView({behavior:'smooth'})}
+function downloadTxt(){download('bilingual_lesson_plan.txt',buildText())}
+function downloadJSON(){download('bilingual_lesson_plan.json',JSON.stringify(data(),null,2))}
+function download(filename,text){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain;charset=utf-8'}));a.download=filename;a.click()}
+function escapeHTML(s){return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
+function clearAll(){if(confirm('確定清除所有填寫內容？')){document.querySelectorAll('input,textarea').forEach(el=>{el.value='';localStorage.removeItem('bilingual_'+el.id)});updateProgress()}}
+function fillDemo(){const demo={school:'臺北市立陽明高中國中部',course:'資訊科技',unit:'氣泡排序演算法',domain:'科技領域／資訊科技',material:'自編',designer:'陳政川',grade:'八年級',sessions:'本單元共2節，每節45分鐘',rationale:'排序是資料處理與演算法學習的重要基礎。學生能透過比較、交換與重複步驟理解演算法如何解決問題。本單元以生活中的排序情境導入，連結運算思維與程式實作能力。',general:'請填入108課綱總綱核心素養代碼與完整內容。',domainGuideline:'請填入科技領域核心素養代碼與完整內容。',performance:'請填入本科最重要的2至3項學習表現。',contents:'請填入本科最重要的2至3項學習內容。',subjectReady:'1. 學生已能比較兩個數字大小。\n2. 學生曾使用Scratch基本積木。\n3. 學生具備基本流程控制概念。',englishReady:'Ss know numbers 1-100.\nSs understand bigger and smaller.\nSs can follow simple classroom instructions.\nSs have learned basic computer words such as input and output.',cognitive:'學生能說出氣泡排序的基本概念。',skill:'學生能完成一段氣泡排序的程式流程。',affective:'學生能在小組任務中展現合作與除錯態度。',teacherEnglish:'教師於課堂指令、關鍵字彙、流程路標、任務提醒與回饋語使用英文。',studentEnglish:'學生跟讀關鍵字、使用短句回答比較結果，並於出口票寫出I learned...句型。',methods:'講述法、問答法、示範教學法、合作學習法。',strategies:'以生活排序情境導入，透過小組任務與挑戰活動提升學習動機。',bilingualSkills:'使用簡單字彙、重複、換句話說、圖像支架、路標語、延長候答時間與追問確認理解。',resources:'簡報、學習單、Scratch、投影設備、白板。',assessment:'實作評量、口語評量、學習單紙筆評量、觀察評量。',rubrics:'優良：能正確解釋並完成排序流程。\n達成：能在提示下完成主要步驟。\n待加強：需協助理解比較與交換概念。',issues:'資訊教育',session1:'準備階段 Preparation stage\n1. 以生活中的排隊與成績排序導入。\n2. 教師介紹compare、swap等關鍵字。\n發展階段 Development stage\n1. 教師示範兩兩比較與交換。\n2. 學生小組操作排序卡牌。\n總結階段 Summary stage\n1. 學生說出排序步驟。\n2. 出口票：I learned compare and swap.\n第一節結束 End of the first session',time1:'5分鐘、30分鐘、10分鐘',references:'108課綱、教師自編教材',appendices:'附錄1學習單、附錄2字彙表、附錄3評量規準'};for(const k in demo){let el=document.getElementById(k);if(el){el.value=demo[k];localStorage.setItem('bilingual_'+k,demo[k])}}updateProgress()}
+init();
+</script>
+</body>
+</html>
